@@ -21,8 +21,8 @@ public class WeatherapiApplication {
 
 	public static void main(String[] args) throws IOException, ParseException, NoSuchFieldException, SecurityException {
 		SpringApplication.run(WeatherapiApplication.class, args);
-		JsonDeserializer deserializer =new JsonDeserializer("https://api.weather.gov/zones/forecast/NYZ009");
-	deserializer.getRootObj();
+		JsonDeserializer deserializer = new JsonDeserializer("https://api.weather.gov/zones/forecast/NYZ009");
+	    deserializer.getRootObj().getProperties();
 		 
 		
 	}

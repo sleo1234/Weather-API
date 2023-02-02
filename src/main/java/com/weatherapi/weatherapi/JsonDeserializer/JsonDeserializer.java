@@ -34,7 +34,8 @@ public class JsonDeserializer  {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		 mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
 		Root root = mapper.readValue(wurl, Root.class);
-		System.out.println("---Weather object" + root.getGeometry().getCoordinates());
+		 root.getGeometry().getCoord();
+		
 		return root;
 	}
 	
