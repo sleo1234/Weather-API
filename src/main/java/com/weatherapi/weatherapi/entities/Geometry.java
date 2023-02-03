@@ -40,13 +40,7 @@ public class Geometry{
 	}
 	
 	public HashMap<Float,Float> getCoord(){
-		List<Float> myCoord = coordinates
-		.stream().flatMap(Collection::stream).
-		collect(Collectors.toList())
-		.stream().flatMap(Collection::stream).
-		collect(Collectors.toList())
-		.stream().flatMap(Collection::stream).
-		collect(Collectors.toList());
+		List<Float> myCoord = flattenArray(coordinates);
 		
 		
 		for (int i=0; i<myCoord.size()-1; i++) {
@@ -62,7 +56,22 @@ public class Geometry{
 	}
    
 	
+	public List<Float> flattenArray(ArrayList<ArrayList<ArrayList<ArrayList<Float>>>> arr){
+		
+		return arr
+				.stream().flatMap(Collection::stream).
+				collect(Collectors.toList())
+				.stream().flatMap(Collection::stream).
+				collect(Collectors.toList())
+				.stream().flatMap(Collection::stream).
+				collect(Collectors.toList());
+	}
 	
+	
+	public List<Float> getCoordList(){
+		
+		return flattenArray(coordinates);
+	}
 //	private static ArrayList<Object> flatten(Object[] array) {
 //	    return (ArrayList<Object>) Arrays.stream(array)
 //	        .flatMap(o -> o instanceof Object[]? (Stream<Object>) flatten((Object[])o): Stream.of(o))
