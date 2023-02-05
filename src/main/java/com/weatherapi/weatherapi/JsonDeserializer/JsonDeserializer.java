@@ -33,6 +33,7 @@ public class JsonDeserializer  {
 	public Root getRootObj () throws StreamReadException, DatabindException, IOException {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		 mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+		
 		Root root = mapper.readValue(wurl, Root.class);
 		 root.getGeometry().getCoord();
 		
