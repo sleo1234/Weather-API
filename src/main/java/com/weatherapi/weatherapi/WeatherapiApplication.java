@@ -30,7 +30,7 @@ public class WeatherapiApplication {
 		//Property prop = mapper.readValue(wurl, Property.class);
 	
 		JsonNode json = new ObjectMapper().readTree(wurl);
-		System.out.println("------------------"+json.get("properties").get("gridX"));
+		//System.out.println("------------------"+json.get("properties").get("forecast").get("periods"));
 		//JsonDeserializer deserializer = new JsonDeserializer(baseGridUrl+"39.7456,-97.0892");
 	    //deserializer
 		 

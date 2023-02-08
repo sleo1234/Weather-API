@@ -2,8 +2,7 @@ package com.weatherapi.weatherapi.entities;
 
 import java.util.ArrayList;
 import java.util.Date;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
 
 public class Properties{
 	
@@ -22,7 +21,7 @@ public class Properties{
 	    public ArrayList<String> timeZone;
 	    public ArrayList<String> observationStations;
 	    public String radarStation;
-	    
+	  
 		public Properties() {
 			super();
 		}
@@ -129,5 +128,5 @@ public class Properties{
 					+ state + ", cwa=" + cwa + ", forecastOffices=" + forecastOffices + ", timeZone=" + timeZone
 					+ ", observationStations=" + observationStations + ", radarStation=" + radarStation + "]";
 		}
-	
+		
 }
