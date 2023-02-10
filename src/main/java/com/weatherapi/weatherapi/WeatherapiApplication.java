@@ -19,7 +19,6 @@ public class WeatherapiApplication {
 		SpringApplication.run(WeatherapiApplication.class, args);
 		String baseGridUrl ="https://api.weather.gov/points/39.7456,-97.0892";
 		final ObjectMapper mapper = new ObjectMapper();
-	
 	    
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		 mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
