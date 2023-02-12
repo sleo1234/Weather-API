@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weatherapi.weatherapi.JsonDeserializer.JsonDeserializer;
+import com.weatherapi.weatherapi.dto.Mapper;
+import com.weatherapi.weatherapi.dto.PeriodDto;
 import com.weatherapi.weatherapi.entities.Period;
 
 
@@ -32,7 +35,7 @@ public class WeatherRestController {
 	String lat;
 	String longitude;
 	final ObjectMapper mapper = new ObjectMapper();
-	
+	private Mapper dtoMapper = new Mapper();
 	
 	@GetMapping("/{countyCode}")
 	public ResponseEntity<Object> geometryApi(@PathVariable("countyCode") String countyCode) throws StreamReadException, DatabindException, IOException {
@@ -63,12 +66,16 @@ public class WeatherRestController {
 		JsonNode json2 = new ObjectMapper().readTree(wurl2);
 		JsonNode response2 = json2.get("properties").get("periods");
 		
-		List<Period> treeToValue = mapper.treeToValue(response2, List.class);
-		
 		List<Period> pers = mapper.convertValue(response2, new TypeReference<List<Period>>() {});
-	  convTemp(pers);
-	System.out.println("--------------------------------"+pers.get(0).getTemperature());
-		return new ResponseEntity<>(pers,HttpStatus.OK);
+	    convTemp(pers);
+		System.out.println("--------------------------------"+pers.get(0).getTemperature());
+
+	  List<PeriodDto> temps =  pers.
+	    stream().
+	    map(dtoMapper :: toDto).
+	    collect(Collectors.toList());
+	  
+		return new ResponseEntity<>(temps,HttpStatus.OK);
 	}
 	
 	
