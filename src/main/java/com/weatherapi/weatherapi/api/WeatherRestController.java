@@ -1,17 +1,19 @@
 package com.weatherapi.weatherapi.api;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.exc.StreamReadException;
@@ -25,6 +27,10 @@ import com.weatherapi.weatherapi.dto.Mapper;
 import com.weatherapi.weatherapi.dto.PeriodDto;
 import com.weatherapi.weatherapi.entities.Period;
 
+import io.github.bucket4j.Bandwidth;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
+
 
 @RestController
 public class WeatherRestController {
@@ -36,6 +42,7 @@ public class WeatherRestController {
 
 	final ObjectMapper mapper = new ObjectMapper();
 	private Mapper dtoMapper = new Mapper();
+
 	
 	public void configureMapper () {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -66,19 +73,33 @@ public class WeatherRestController {
 	}
 	
 	@GetMapping("/temperatures/{countyCode}")
-	public ResponseEntity<Object> getGrid (@PathVariable("countyCode") String countyCode) throws IOException{
- List<Float> coordinates = getLatLong(countyCode);
+	public ResponseEntity<Object> getGrid (@PathVariable("countyCode") String countyCode, @RequestParam("unit") String unit) throws IOException{
+    List<Float> coordinates = getLatLong(countyCode);
 		String lat = coordinates.get(0).toString();
 		String longitude = coordinates.get(1).toString();
 	
-	List<Period> pers = getPeriods(longitude, lat);
-	System.out.println("*****************"+pers);
-  List<PeriodDto> temps =  pers.
+	List<Period> periods = getPeriods(longitude, lat);
+	if (unit.equals("C")) {
+		convTemp(periods);
+	}
+
+  List<PeriodDto> temps =  periods.
     stream().
 	    map(dtoMapper :: toDto).
 	    collect(Collectors.toList());
+  weatherLimiterApi(1,1);
+  
+  if (bucket.tryConsume(1) ) {
+	 
+	  System.out.println("----------------------heree"+bucket.getAvailableTokens());
+	  return new ResponseEntity<>(temps,HttpStatus.OK);
+  }
+  else {
 	  
-		return new ResponseEntity<>(temps,HttpStatus.OK);
+	  System.out.println("-------------"+bucket.getAvailableTokens());
+	  return new 
+			  ResponseEntity<>("<h2>You succeedeed the max number of request</h2>", HttpStatus.TOO_MANY_REQUESTS);
+  }
 	}
 	
 	
@@ -119,10 +140,20 @@ public class WeatherRestController {
 		return c;
 	}
 	
+
+	
 	
 	public void convTemp(List<Period> periods) {
 		for (int i=0; i< periods.size(); i++) {
 			periods.get(i).setTemperature(convertToCelsius(periods.get(i).getTemperature()));
 		}
 	}
+	
+	
+	private  Bucket bucket;
+    public void weatherLimiterApi(int tokens,int minutes) {
+    	Bandwidth limit = Bandwidth.simple(tokens, Duration.ofMinutes(minutes));
+    	// construct the bucket
+    	 bucket = Bucket.builder().addLimit(limit).build();
+    }
 }
