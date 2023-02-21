@@ -8,7 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +28,7 @@ import com.weatherapi.weatherapi.entities.Period;
 
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 
 
@@ -39,11 +39,18 @@ public class WeatherRestController {
 	String baseZoneUrl = "https://api.weather.gov/zones/forecast/";
 	String baseGridUrl ="https://api.weather.gov/gridpoints/";
 	String basepointUrl = "https://api.weather.gov/points/";
-
+    final long tokens=5L;
 	final ObjectMapper mapper = new ObjectMapper();
 	private Mapper dtoMapper = new Mapper();
 
+     private final  Bucket bucket;
 	
+    public  WeatherRestController() {
+    	Refill refill = Refill.intervally(tokens, Duration.ofMinutes(1));
+    	Bandwidth limit = Bandwidth.classic(tokens, refill);
+    	// construct the bucket
+    	 bucket = Bucket.builder().addLimit(limit).build();
+    }
 	public void configureMapper () {
 		mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		 mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
@@ -87,16 +94,17 @@ public class WeatherRestController {
     stream().
 	    map(dtoMapper :: toDto).
 	    collect(Collectors.toList());
-  weatherLimiterApi(1,1);
+ 
   
+	
   if (bucket.tryConsume(1) ) {
 	 
-	  System.out.println("----------------------heree"+bucket.getAvailableTokens());
+	  System.out.println("----------------------heree"+bucket.toString());
 	  return new ResponseEntity<>(temps,HttpStatus.OK);
   }
   else {
 	  
-	  System.out.println("-------------"+bucket.getAvailableTokens());
+	  System.out.println("-------------"+bucket.toString());
 	  return new 
 			  ResponseEntity<>("<h2>You succeedeed the max number of request</h2>", HttpStatus.TOO_MANY_REQUESTS);
   }
@@ -150,10 +158,5 @@ public class WeatherRestController {
 	}
 	
 	
-	private  Bucket bucket;
-    public void weatherLimiterApi(int tokens,int minutes) {
-    	Bandwidth limit = Bandwidth.simple(tokens, Duration.ofMinutes(minutes));
-    	// construct the bucket
-    	 bucket = Bucket.builder().addLimit(limit).build();
-    }
+	
 }
