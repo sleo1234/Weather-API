@@ -38,6 +38,18 @@ public class CountyData {
 		
 		return objMapper.writeValueAsString(setValues());
 	}
+
+
+
+	public List<CountyCode> getCodes() {
+		return codes;
+	}
+
+
+
+	public void setCodes(List<CountyCode> codes) {
+		this.codes = codes;
+	}
 	
 	
 	

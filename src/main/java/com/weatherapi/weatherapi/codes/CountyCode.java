@@ -40,5 +40,9 @@ public class CountyCode {
 	public void setCode(String code) {
 		this.code = code;
 	}
+	@Override
+	public String toString() {
+		return "CountyCode [id=" + id + ", county=" + county + ", code=" + code + "]";
+	}
 	
 }
