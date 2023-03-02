@@ -26,7 +26,7 @@ public class CountyData {
 		 
 		 for (int i=0; i<countyCode.size(); i++) {
 		codes.add( new CountyCode(String.valueOf(i),countyName.get(i),countyCode.get(i)));
-		
+		//System.out.println("====="+ codes.get(i).toString());
 		 }
 		 return codes;
 		 }

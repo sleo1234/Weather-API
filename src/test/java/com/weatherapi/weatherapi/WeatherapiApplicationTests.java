@@ -11,6 +11,8 @@ import com.weatherapi.weatherapi.codes.CountyCode;
 import com.weatherapi.weatherapi.elasticsearch.CountyCodeRepository;
 import com.weatherapi.weatherapi.filereader.CountyData;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
+
 @SpringBootTest
 class WeatherapiApplicationTests {
 
@@ -25,7 +27,20 @@ class WeatherapiApplicationTests {
 		CountyData codes = new CountyData();
 		
 		//List<CountyCode> countyCodes = codes.setValues();
-		//repo.saveAll();
-	   System.out.println("----------------"+repo.getAllDocuments().get(0).toString());	
+		repo.saveAll();
+	repo.getAllDocuments().forEach(System.out :: println);
+	 //System.out.println("----------------"+repo.getAllDocuments().get(50).toString());	
+	}
+	
+	@Test
+	
+	public void testFindCodeByCunty () throws ElasticsearchException, IOException {
+		
+		Object obj = repo.findCountyByCode("Alabama");
+		System.out.println(repo.findCountyByCode("Alabama"));
+	}
+	@Test
+	public void testSaveAllCodes () throws IOException {
+		repo.saveCodes();
 	}
 }

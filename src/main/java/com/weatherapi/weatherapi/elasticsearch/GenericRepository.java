@@ -35,10 +35,7 @@ public class GenericRepository {
 			items = (List<T>) convertTo(hitsResponse);
 		}
 		
-		
-		
 		return items;
-		
 		
 	}
 	

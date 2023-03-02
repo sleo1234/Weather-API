@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,13 +23,15 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.weatherapi.weatherapi.JsonDeserializer.JsonDeserializer;
+import com.weatherapi.weatherapi.codes.CountyCode;
 import com.weatherapi.weatherapi.dto.Mapper;
 import com.weatherapi.weatherapi.dto.PeriodDto;
+import com.weatherapi.weatherapi.elasticsearch.CountyCodeRepository;
 import com.weatherapi.weatherapi.entities.Period;
 
+import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Bucket4j;
 import io.github.bucket4j.Refill;
 
 
@@ -39,6 +42,7 @@ public class WeatherRestController {
 	String baseZoneUrl = "https://api.weather.gov/zones/forecast/";
 	String baseGridUrl ="https://api.weather.gov/gridpoints/";
 	String basepointUrl = "https://api.weather.gov/points/";
+	@Autowired CountyCodeRepository repo;
     final long tokens=5L;
 	final ObjectMapper mapper = new ObjectMapper();
 	private Mapper dtoMapper = new Mapper();
@@ -67,6 +71,13 @@ public class WeatherRestController {
 		return new ResponseEntity<>(coordinates,HttpStatus.OK);
 	}
 
+	@GetMapping("/temperatures/county/{countyName}")
+	public ResponseEntity<Object> getByCountyName (@PathVariable ("countyName") String countyName) throws ElasticsearchException, IOException, NoSuchFieldException, SecurityException{
+		CountyCode countyCode = repo.findCountyByCode(countyName);
+		String name = countyCode.getCode();
+		//Object property = mapper.readTree(countyCode.toString()).get("county");
+		return getGrid(name+"Z009", "C");
+	}
 	
 	public List<Float> getLatLong(String countyCode) 
 			throws StreamReadException, DatabindException, IOException{
@@ -135,12 +146,7 @@ public class WeatherRestController {
 	
 
 	
-	public static <T> List<T> castTo (Class<? extends T> clazz, Collection<?> c) {
-	    List<T> r = new ArrayList<T>(c.size());
-	    for(Object o: c)
-	      r.add(clazz.cast(o));
-	    return r;
-	}
+	
 	
 	
 	public int convertToCelsius (int f) {
