@@ -3,8 +3,6 @@ package com.weatherapi.weatherapi.api;
 import java.io.IOException;
 import java.net.URL;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,10 +69,26 @@ public class WeatherRestController {
 		return new ResponseEntity<>(coordinates,HttpStatus.OK);
 	}
 
+	
+	@GetMapping ("/periods/county/{countyName}")
+	
+	public ResponseEntity<Object> getPeriodsByCountyName (@PathVariable ("countyName") String countyName) throws ElasticsearchException, NoSuchFieldException, SecurityException, IOException{
+		String countyCode = repo.findCountyByCode(countyName).getCode();
+		List<Float> coordinates = getLatLong(countyCode+"Z009");
+		String lat = coordinates.get(0).toString();
+		String longitude = coordinates.get(1).toString();
+	
+	List<Period> periods = getPeriods(longitude, lat);
+	return new ResponseEntity<>(periods,HttpStatus.OK);
+	}
+	
+	
+	
 	@GetMapping("/temperatures/county/{countyName}")
 	public ResponseEntity<Object> getByCountyName (@PathVariable ("countyName") String countyName) throws ElasticsearchException, IOException, NoSuchFieldException, SecurityException{
 		CountyCode countyCode = repo.findCountyByCode(countyName);
-		String name = countyCode.getCode();
+		
+		String name = countyCode.getCode ();
 		//Object property = mapper.readTree(countyCode.toString()).get("county");
 		return getGrid(name+"Z009", "C");
 	}
